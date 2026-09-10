@@ -14,11 +14,11 @@ function ufw_step1() {
 	# 1. Install packages
 	log "\n${green}Step 1: Install package"
 
-	is_dry_run || apt update 2>&1 | tee -a $LOGFILE_PATH
+	is_dry_run "Would've updated APT cache." || apt update 2>&1 | tee -a $LOGFILE_PATH
 
 	# Installing:
 	#   - ufw
-	if ! is_dry_run; then
+	if ! is_dry_run ""; then
 		if [ "$UNATTENDED_INSTALL" == true ]; then
 			log "Trying unattended install for UFW."
 			export DEBIAN_FRONTEND=noninteractive
@@ -37,7 +37,7 @@ function ufw_step2() {
 
 	# Prefix command with 'log' if in dry run mode.
 	local _cmdprefix=""
-	is_dry_run && _cmdprefix="log " || true
+	is_dry_run "" && _cmdprefix="log " || true
 
 	${_cmdprefix}ufw default deny incoming | tee -a $LOGFILE_PATH
 	${_cmdprefix}ufw default allow outgoing | tee -a $LOGFILE_PATH
@@ -59,7 +59,7 @@ function ufw_step2() {
 	fi
 
 	_ufwargs=""
-	is_dry_run || _ufwargs="--force"
+	is_dry_run "" || _ufwargs="--force"
 	${_cmdprefix}ufw "$_ufwargs" enable | tee -a $LOGFILE_PATH
 }
 
@@ -71,7 +71,7 @@ function ufw_allow_harp_ports() {
 
 	# Prefix command with 'log' if in dry run mode.
 	local _cmdprefix=""
-	is_dry_run && _cmdprefix="log " || true
+	is_dry_run "" && _cmdprefix="log " || true
 
 	local https_port="$1"
 	${_cmdprefix}ufw allow "$https_port/tcp" comment "Nextcloud HPB HaRP HTTPS (instance $https_port)" | tee -a "$LOGFILE_PATH"

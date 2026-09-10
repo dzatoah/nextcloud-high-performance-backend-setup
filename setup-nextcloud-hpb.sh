@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo pipefail
+set -ueo pipefail
 
 # Sane defaults (Don't manually override these settings here!)
 # Manual edits can be done by editing settings.sh and '$ ./setup-nextcloud-hpb.sh settings.sh'.
@@ -400,7 +400,7 @@ EOF
 }
 
 function generate_dhparam_file() {
-	if [ "$BUILT_DHPARAM_FILE" == "true" ]; then
+	if [ "${BUILT_DHPARAM_FILE:-false}" == "true" ]; then
 		# Skip if we already generated dhparam file.
 		return 0
 	fi
@@ -838,9 +838,7 @@ function main() {
 	log "Splitting Nextcloud server domains into:"
 	log "$(printf '\t- %s\n' "${NEXTCLOUD_SERVER_FQDNS[@]}")"
 
-	is_dry_run &&
-		log "Running in dry-mode. This script won't actually do anything on" \
-			"your system!"
+	is_dry_run "" && log "Running in dry-mode. This script won't actually do anything on your system!"
 
 	if [ "$UNATTENDED_INSTALL" = true ]; then
 		log "Trying unattented installation."
